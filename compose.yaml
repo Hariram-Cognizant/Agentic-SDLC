@@ -1,0 +1,27 @@
+services:
+  api:
+    build: .
+    environment:
+      APP_ENV: production
+      DATABASE_URL: sqlite:////app/data/agentic_sdlc.db
+      ARTIFACT_DIR: /app/artifacts
+      CORS_ORIGINS: http://localhost:8080
+      GENERATION_PROVIDER: ${GENERATION_PROVIDER:-template}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    volumes:
+      - sdlc-data:/app/data
+      - sdlc-artifacts:/app/artifacts
+    restart: unless-stopped
+
+  web:
+    build: ./frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  sdlc-data:
+  sdlc-artifacts:
